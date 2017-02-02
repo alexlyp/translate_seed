@@ -53,3 +53,38 @@ func DecodeMnemonics(words []string) ([]byte, error) {
 	}
 	return decoded[:idx], nil
 }
+
+// ByteToFrenchMnemonic returns the PGP word list encoding of b when found at index.
+func ByteToFrenchMnemonic(b byte, index int) string {
+	bb := uint16(b) * 2
+	if index%2 != 0 {
+		bb++
+	}
+	return frenchWordList[bb]
+}
+
+// DecodeFrenchMnemonics returns the decoded value that is encoded by words.  Any
+// words that are whitespace are empty are skipped.
+func DecodeFrenchMnemonics(words []string) ([]byte, error) {
+	decoded := make([]byte, len(words))
+	idx := 0
+	for _, w := range words {
+		w = strings.TrimSpace(w)
+		if w == "" {
+			continue
+		}
+		b, ok := frenchWordIndexes[strings.ToLower(w)]
+		if !ok {
+			return nil, fmt.Errorf("word %v is not in the PGP word list", w)
+		}
+
+		if int(b%2) != idx%2 {
+			return nil, fmt.Errorf("word %v is not valid at position %v, "+
+				"check for missing words", w, idx)
+		}
+
+		decoded[idx] = byte(b / 2)
+		idx++
+	}
+	return decoded[:idx], nil
+}

@@ -9,10 +9,11 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/decred/dcrutil/hdkeychain"
-	"github.com/decred/dcrwallet/pgpwordlist"
+	"github.com/decred/translate_seed/pgpwordlist"
 )
 
 // GenerateRandomSeed returns a new seed created from a cryptographically-secure
@@ -58,9 +59,9 @@ func EncodeMnemonic(seed []byte) string {
 	return buf.String()
 }
 
-// DecodeUserInput decodes a seed in either hexadecimal or mnemonic word list
+// DecodeFrenchUserInput decodes a seed in either hexadecimal or mnemonic word list
 // encoding back into its binary form.
-func DecodeUserInput(input string) ([]byte, error) {
+func DecodeFrenchUserInput(input string) ([]byte, error) {
 	words := strings.Split(strings.TrimSpace(input), " ")
 	var seed []byte
 	switch {
@@ -73,7 +74,7 @@ func DecodeUserInput(input string) ([]byte, error) {
 		}
 	case len(words) > 1:
 		// Assume mnemonic with encoded checksum byte
-		decoded, err := pgpwordlist.DecodeMnemonics(words)
+		decoded, err := pgpwordlist.DecodeFrenchMnemonics(words)
 		if err != nil {
 			return nil, err
 		}
@@ -89,5 +90,6 @@ func DecodeUserInput(input string) ([]byte, error) {
 	if len(seed) < hdkeychain.MinSeedBytes || len(seed) > hdkeychain.MaxSeedBytes {
 		return nil, hdkeychain.ErrInvalidSeedLen
 	}
+	fmt.Println("Here is your english seed: ", EncodeMnemonic(seed))
 	return seed, nil
 }
